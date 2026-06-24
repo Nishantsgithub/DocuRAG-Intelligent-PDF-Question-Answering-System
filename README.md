@@ -104,47 +104,54 @@ The prototype was refactored into a clean, modular Python package:
 ## Architecture
 
 ```mermaid
-flowchart LR
-    User([User])
+flowchart TD
+    User([User / Client])
 
-    subgraph Ingestion["Ingestion"]
-        direction TB
+    subgraph Ingestion
         A[PDF Upload] --> B[PyMuPDF Loader]
         B --> C[Recursive Chunker]
-        C --> D[Metadata\ndoc name, page, chunk id, timestamp]
+        C --> D[Metadata Attachment\ndoc_name · page · chunk_id · timestamp]
     end
 
-    subgraph Embedding["Embedding"]
-        direction TB
-        E{Backend?}
-        E -->|Local| F[sentence-transformers]
+    subgraph Embedding
+        D --> E{Embedding Backend}
+        E -->|Local| F[sentence-transformers\nall-MiniLM-L6-v2]
         E -->|API| G[OpenAI Embeddings]
     end
 
-    subgraph Store["Vector Store"]
-        direction TB
-        H{Store?}
-        H -->|default| I[(ChromaDB)]
-        H -->|optional| J[(FAISS)]
+    subgraph VectorStore
+        F --> H{Vector Store}
+        G --> H
+        H -->|default| I[(ChromaDB\nPersistent)]
+        H -->|optional| J[(FAISS\nOn-disk)]
     end
 
-    subgraph Query["Retrieval and Generation"]
-        direction TB
+    subgraph Retrieval
         K[User Query] --> L[Query Embedding]
-        L --> M[Top-K Search]
-        M --> N[Context Builder]
-        N --> O[OpenAI LLM]
-        O --> P[Answer + Citations]
+        L --> M[Top-K Semantic Search]
+        I --> M
+        J --> M
+        M --> N[Retrieved Chunks\n+ Metadata]
+    end
+
+    subgraph Generation
+        N --> O[Context Builder]
+        O --> P[OpenAI Chat Completions\ngpt-4o-mini]
+        P --> Q[Answer + Source Citations\ndoc_name · page_label]
+    end
+
+    subgraph Evaluation
+        R[Test Queries] --> S[Retrieval Relevance]
+        R --> T[Faithfulness Score]
+        R --> U[Hallucination Risk]
+        R --> V[Response Latency]
     end
 
     User -->|POST /upload| A
-    D --> E
-    F --> H
-    G --> H
-    I --> M
-    J --> M
-    P -->|JSON response| User
     User -->|POST /query| K
+    Q -->|JSON Response| User
+    User -->|POST /evaluate| R
+
 ```
 
 ---

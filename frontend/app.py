@@ -44,7 +44,7 @@ with st.sidebar:
         st.error("Cannot reach API — is the server running?")
 
     st.divider()
-    st.caption("DocuRAG v1.0.0 · [GitHub](https://github.com)")
+    st.caption("DocuRAG v1.0.0 · [GitHub](https://github.com/Nishantsgithub/DocuRAG-Intelligent-PDF-Question-Answering-System)")
 
 # ── Main area ──────────────────────────────────────────────────────────────────
 st.title("📄 DocuRAG")

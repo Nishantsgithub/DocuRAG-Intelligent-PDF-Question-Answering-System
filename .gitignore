@@ -32,6 +32,9 @@ faiss.index
 *.meta.pkl
 chroma/
 
+# ── Legacy notebook folder (preserved locally, superseded by notebooks/) ──────
+notebook/
+
 # ── Jupyter ───────────────────────────────────────────────────────────────────
 .ipynb_checkpoints/
 
